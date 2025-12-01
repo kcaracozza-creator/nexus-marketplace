@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Marketplace</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:system-ui,sans-serif;background:#0d0d12;color:#ddd;font-size:13px}
+        header{background:#141419;padding:12px 20px;border-bottom:1px solid #c9a227;display:flex;align-items:center;justify-content:space-between}
+        .logo{color:#c9a227;font-weight:700;font-size:18px;letter-spacing:1px}
+        nav{display:flex;gap:20px;align-items:center}
+        nav a{color:#888;text-decoration:none;font-size:12px}
+        nav a:hover{color:#c9a227}
+        .status{font-size:10px;padding:4px 10px;border-radius:10px}
+        .status.on{background:#143d1f;color:#4a8}
+        .status.off{background:#3d1414;color:#c44}
+        
+        .search-bar{background:#141419;padding:15px 20px;border-bottom:1px solid #252530;display:flex;gap:10px;align-items:center}
+        .search-bar input{flex:1;padding:10px 15px;background:#1a1a22;border:1px solid #2a2a35;border-radius:4px;color:#ddd;font-size:13px}
+        .search-bar input:focus{outline:none;border-color:#c9a227}
+        .search-bar button{padding:10px 20px;background:#c9a227;border:none;border-radius:4px;color:#000;font-weight:600;cursor:pointer}
+        .search-bar button:hover{background:#d4af37}
+        
+        .stats{display:flex;justify-content:center;gap:40px;padding:15px;background:#1a1a22;border-bottom:1px solid #252530}
+        .stat-item{text-align:center}
+        .stat-value{font-size:18px;font-weight:700;color:#c9a227}
+        .stat-label{font-size:10px;color:#666;text-transform:uppercase}
+        
+        main{display:flex;min-height:calc(100vh - 180px)}
+        
+        .sidebar{width:200px;background:#141419;padding:15px;border-right:1px solid #252530}
+        .filter-group{margin-bottom:20px}
+        .filter-title{font-size:10px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+        .filter-group select{width:100%;padding:8px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
+        .filter-group label{display:block;padding:4px 0;font-size:11px;cursor:pointer}
+        .filter-group input[type=checkbox]{margin-right:6px;accent-color:#c9a227}
+        .price-inputs{display:flex;gap:5px}
+        .price-inputs input{width:50%;padding:6px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
+        .clear-btn{width:100%;padding:8px;background:transparent;border:1px solid #2a2a35;color:#888;border-radius:3px;cursor:pointer;font-size:11px;margin-top:10px}
+        .clear-btn:hover{border-color:#c9a227;color:#c9a227}
+        
+        .content{flex:1;padding:20px}
+        .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+        .results-count{font-size:12px;color:#888}
+        .results-count b{color:#c9a227}
+        .sort-select{padding:6px 10px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
+        
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px}
+        .card{background:#1a1a22;border:1px solid #252530;border-radius:6px;overflow:hidden;cursor:pointer;transition:all .2s}
+        .card:hover{border-color:#c9a227;transform:translateY(-2px)}
+        .card img{width:100%;aspect-ratio:0.72;object-fit:cover;background:#141419}
+        .card-body{padding:12px}
+        .card-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+        .card-set{font-size:10px;color:#666;margin-bottom:8px}
+        .card-footer{display:flex;justify-content:space-between;align-items:center}
+        .card-price{font-size:16px;font-weight:700;color:#c9a227}
+        .card-rarity{font-size:9px;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+        .card-rarity.mythic{background:#8b4513;color:#ffa500}
+        .card-rarity.rare{background:#1a1a4a;color:#ffd700}
+        .card-rarity.uncommon{background:#1a3a1a;color:#c0c0c0}
+        .card-rarity.common{background:#2a2a2a;color:#888}
+        
+        .pagination{display:flex;justify-content:center;gap:5px;margin-top:20px}
+        .pagination button{padding:8px 12px;background:#1a1a22;border:1px solid #252530;color:#ddd;border-radius:3px;cursor:pointer;font-size:11px}
+        .pagination button:hover{border-color:#c9a227}
+        .pagination button.active{background:#c9a227;color:#000;border-color:#c9a227}
+        .pagination button:disabled{opacity:.3;cursor:not-allowed}
+        
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;align-items:center;justify-content:center}
+        .modal.show{display:flex}
+        .modal-content{background:#141419;border:1px solid #252530;border-radius:8px;max-width:800px;width:95%;max-height:90vh;overflow:auto;display:flex}
+        .modal-img{width:300px;flex-shrink:0;background:#0d0d12;display:flex;align-items:center;justify-content:center;padding:20px}
+        .modal-img img{max-width:100%;max-height:400px;border-radius:8px}
+        .modal-info{flex:1;padding:25px}
+        .modal-name{font-size:22px;font-weight:700;margin-bottom:5px}
+        .modal-set{font-size:13px;color:#666;margin-bottom:20px}
+        .modal-price{font-size:32px;font-weight:700;color:#c9a227;margin-bottom:20px}
+        .modal-details{font-size:12px;color:#888;line-height:1.8}
+        .modal-details b{color:#ddd}
+        .modal-close{position:absolute;top:15px;right:20px;background:none;border:none;color:#666;font-size:28px;cursor:pointer}
+        .modal-close:hover{color:#ddd}
+        .modal-actions{margin-top:20px;display:flex;gap:10px}
+        .modal-actions button{padding:12px 25px;border-radius:4px;font-weight:600;cursor:pointer;font-size:12px}
+        .btn-primary{background:#c9a227;border:none;color:#000}
+        .btn-secondary{background:transparent;border:1px solid #2a2a35;color:#ddd}
+        
+        .loading{text-align:center;padding:60px;color:#666}
+        .spinner{width:30px;height:30px;border:3px solid #252530;border-top-color:#c9a227;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 15px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .error{background:rgba(200,60,60,.1);border:1px solid #c44;padding:20px;border-radius:6px;color:#c44;text-align:center}
+        .empty{text-align:center;padding:60px;color:#666}
+        .empty-icon{font-size:48px;margin-bottom:15px}
+        
+        @media(max-width:768px){
+            .sidebar{display:none}
+            .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+            .modal-content{flex-direction:column}
+            .modal-img{width:100%;height:200px}
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">NEXUS MARKETPLACE</div>
+    <nav>
+        <a href="#browse">Browse</a>
+        <a href="#sell">Sell Cards</a>
+        <a href="#orders">Orders</a>
+        <span class="status off" id="serverStatus">● Offline</span>
+    </nav>
+</header>
+
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search cards by name..." onkeyup="if(event.key==='Enter')searchCards()">
+    <button onclick="searchCards()">Search</button>
+</div>
+
+<div class="stats">
+    <div class="stat-item">
+        <div class="stat-value" id="totalCards">--</div>
+        <div class="stat-label">Cards Listed</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="totalValue">--</div>
+        <div class="stat-label">Total Value</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="uniqueSets">--</div>
+        <div class="stat-label">Sets</div>
+    </div>
+</div>
+
+<main>
+    <aside class="sidebar">
+        <div class="filter-group">
+            <div class="filter-title">Price Range</div>
+            <div class="price-inputs">
+                <input type="number" id="priceMin" placeholder="Min">
+                <input type="number" id="priceMax" placeholder="Max">
+            </div>
+        </div>
+        <div class="filter-group">
+            <div class="filter-title">Rarity</div>
+            <label><input type="checkbox" value="mythic" onchange="applyFilters()"> Mythic Rare</label>
+            <label><input type="checkbox" value="rare" onchange="applyFilters()"> Rare</label>
+            <label><input type="checkbox" value="uncommon" onchange="applyFilters()"> Uncommon</label>
+            <label><input type="checkbox" value="common" onchange="applyFilters()"> Common</label>
+        </div>
+        <div class="filter-group">
+            <div class="filter-title">Color</div>
+            <label><input type="checkbox" value="W" onchange="applyFilters()"> White</label>
+            <label><input type="checkbox" value="U" onchange="applyFilters()"> Blue</label>
+            <label><input type="checkbox" value="B" onchange="applyFilters()"> Black</label>
+            <label><input type="checkbox" value="R" onchange="applyFilters()"> Red</label>
+            <label><input type="checkbox" value="G" onchange="applyFilters()"> Green</label>
+        </div>
+        <button class="clear-btn" onclick="clearFilters()">Clear All Filters</button>
+    </aside>
+    
+    <div class="content">
+        <div class="results-header">
+            <span class="results-count">Showing <b id="showCount">0</b> of <b id="totalCount">0</b> cards</span>
+            <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+                <option value="name_asc">Name A-Z</option>
+                <option value="name_desc">Name Z-A</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="set">Set Name</option>
+            </select>
+        </div>
+        <div id="cardGrid" class="grid"></div>
+        <div id="pagination" class="pagination"></div>
+    </div>
+</main>
+
+<div class="modal" id="cardModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-img"><img id="modalImg" src=""></div>
+        <div class="modal-info">
+            <div class="modal-name" id="modalName"></div>
+            <div class="modal-set" id="modalSet"></div>
+            <div class="modal-price" id="modalPrice"></div>
+            <div class="modal-details" id="modalDetails"></div>
+            <div class="modal-actions">
+                <button class="btn-primary">Add to Cart</button>
+                <button class="btn-secondary">View on Scryfall</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'https://nexus-cards.com';
+let allCards = [];
+let filteredCards = [];
+let page = 1;
+const perPage = 48;
+
+async function init() {
+    await checkServer();
+    await loadCards();
+}
+
+async function checkServer() {
+    const el = document.getElementById('serverStatus');
+    try {
+        const r = await fetch(API + '/health');
+        if (r.ok) {
+            el.className = 'status on';
+            el.textContent = '● Online';
+            
+            const stats = await (await fetch(API + '/status')).json();
+            document.getElementById('totalCards').textContent = (stats.cards_in_db || 0).toLocaleString();
+            
+            const analytics = await (await fetch(API + '/analytics/summary')).json();
+            document.getElementById('totalValue').textContent = '$' + (analytics.total_value || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+    } catch(e) {
+        el.className = 'status off';
+        el.textContent = '● Offline';
+    }
+}
+
+async function loadCards() {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div>Loading cards...</div>';
+    
+    try {
+        const r = await fetch(API + '/cards/search?limit=1000');
+        const data = await r.json();
+        allCards = data.results || [];
+        
+        // Count unique sets
+        const sets = new Set(allCards.map(c => c.set_name || c.set).filter(Boolean));
+        document.getElementById('uniqueSets').textContent = sets.size;
+        
+        applyFilters();
+    } catch(e) {
+        grid.innerHTML = '<div class="error"><b>Cannot connect to server</b><br><br>Make sure server.py is running:<br>python server.py</div>';
+    }
+}
+
+function searchCards() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    if (!q) {
+        filteredCards = [...allCards];
+    } else {
+        filteredCards = allCards.filter(c => (c.name || '').toLowerCase().includes(q));
+    }
+    page = 1;
+    renderCards();
+}
+
+function applyFilters() {
+    let cards = [...allCards];
+    
+    // Search
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    if (q) cards = cards.filter(c => (c.name || '').toLowerCase().includes(q));
+    
+    // Price
+    const minP = parseFloat(document.getElementById('priceMin').value) || 0;
+    const maxP = parseFloat(document.getElementById('priceMax').value) || 999999;
+    cards = cards.filter(c => {
+        const p = parseFloat(c.price) || 0;
+        return p >= minP && p <= maxP;
+    });
+    
+    // Rarity
+    const rarities = [...document.querySelectorAll('.filter-group input[value="mythic"], .filter-group input[value="rare"], .filter-group input[value="uncommon"], .filter-group input[value="common"]')]
+        .filter(c => c.checked).map(c => c.value);
+    if (rarities.length) cards = cards.filter(c => rarities.includes((c.rarity || '').toLowerCase()));
+    
+    // Color
+    const colors = [...document.querySelectorAll('.filter-group input[value="W"], .filter-group input[value="U"], .filter-group input[value="B"], .filter-group input[value="R"], .filter-group input[value="G"]')]
+        .filter(c => c.checked).map(c => c.value);
+    if (colors.length) cards = cards.filter(c => {
+        const cardColors = c.colors || c.color_identity || [];
+        return colors.some(col => cardColors.includes(col));
+    });
+    
+    // Sort
+    const sort = document.getElementById('sortSelect').value;
+    cards.sort((a, b) => {
+        switch(sort) {
+            case 'name_asc': return (a.name || '').localeCompare(b.name || '');
+            case 'name_desc': return (b.name || '').localeCompare(a.name || '');
+            case 'price_desc': return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+            case 'price_asc': return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
+            case 'set': return (a.set_name || a.set || '').localeCompare(b.set_name || b.set || '');
+            default: return 0;
+        }
+    });
+    
+    filteredCards = cards;
+    page = 1;
+    renderCards();
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('priceMin').value = '';
+    document.getElementById('priceMax').value = '';
+    document.getElementById('sortSelect').value = 'name_asc';
+    document.querySelectorAll('.sidebar input[type=checkbox]').forEach(c => c.checked = false);
+    filteredCards = [...allCards];
+    page = 1;
+    renderCards();
+}
+
+function renderCards() {
+    const grid = document.getElementById('cardGrid');
+    const total = filteredCards.length;
+    const start = (page - 1) * perPage;
+    const pageCards = filteredCards.slice(start, start + perPage);
+    
+    document.getElementById('showCount').textContent = pageCards.length;
+    document.getElementById('totalCount').textContent = total;
+    
+    if (!pageCards.length) {
+        grid.innerHTML = '<div class="empty"><div class="empty-icon">🃏</div>No cards found</div>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+    
+    grid.innerHTML = pageCards.map((c, i) => `
+        <div class="card" onclick="openModal(${start + i})">
+            ${c.image_url || (c.image_uris && c.image_uris.normal) ? 
+                `<img src="${c.image_url || c.image_uris.normal}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect fill=%22%23141419%22 width=%22100%22 height=%22140%22/><text x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23444%22 font-size=%228%22>No Image</text></svg>'">` :
+                `<div style="width:100%;aspect-ratio:.72;background:#141419;display:flex;align-items:center;justify-content:center;color:#444;font-size:10px">No Image</div>`
+            }
+            <div class="card-body">
+                <div class="card-name" title="${c.name || 'Unknown'}">${c.name || 'Unknown'}</div>
+                <div class="card-set">${c.set_name || c.set || 'Unknown Set'}</div>
+                <div class="card-footer">
+                    <div class="card-price">${c.price ? '$' + parseFloat(c.price).toFixed(2) : '--'}</div>
+                    <span class="card-rarity ${(c.rarity || '').toLowerCase()}">${c.rarity || ''}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    renderPagination(total);
+}
+
+function renderPagination(total) {
+    const pages = Math.ceil(total / perPage);
+    if (pages <= 1) {
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+    
+    let html = `<button ${page === 1 ? 'disabled' : ''} onclick="goPage(${page - 1})">← Prev</button>`;
+    
+    for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) {
+        html += `<button class="${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    }
+    
+    html += `<button ${page === pages ? 'disabled' : ''} onclick="goPage(${page + 1})">Next →</button>`;
+    
+    document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+    page = p;
+    renderCards();
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+}
+
+function openModal(idx) {
+    const c = filteredCards[idx];
+    if (!c) return;
+    
+    document.getElementById('modalImg').src = c.image_url || (c.image_uris && c.image_uris.normal) || '';
+    document.getElementById('modalName').textContent = c.name || 'Unknown';
+    document.getElementById('modalSet').textContent = (c.set_name || c.set || '') + ' • ' + (c.rarity || '');
+    document.getElementById('modalPrice').textContent = c.price ? '$' + parseFloat(c.price).toFixed(2) : 'Price not available';
+    
+    let details = '';
+    if (c.type_line) details += `<b>Type:</b> ${c.type_line}<br>`;
+    if (c.mana_cost) details += `<b>Mana Cost:</b> ${c.mana_cost}<br>`;
+    if (c.oracle_text) details += `<b>Text:</b> ${c.oracle_text}<br>`;
+    if (c.power && c.toughness) details += `<b>P/T:</b> ${c.power}/${c.toughness}<br>`;
+    if (c.call_number) details += `<b>Location:</b> ${c.call_number}<br>`;
+    if (c.scryfall_id) details += `<b>Scryfall ID:</b> ${c.scryfall_id}<br>`;
+    document.getElementById('modalDetails').innerHTML = details || 'No additional details';
+    
+    document.getElementById('cardModal').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('cardModal').classList.remove('show');
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+
+init();
+</script>
+
+</body>
+</html>
