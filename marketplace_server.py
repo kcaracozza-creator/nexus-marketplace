@@ -146,6 +146,14 @@ def check_for_ai_triggers(message_text, author):
     triggered_ais = []
     text_lower = message_text.lower()
     
+    # @everyone triggers ALL AIs
+    if '@everyone' in text_lower or 'everyone' in text_lower:
+        for ai_name in AI_CONFIGS.keys():
+            if author.lower() != ai_name:  # Don't let AI trigger itself
+                triggered_ais.append(ai_name)
+        return triggered_ais
+    
+    # Individual triggers
     for ai_name, config in AI_CONFIGS.items():
         # Don't let AI trigger itself
         if author.lower() == ai_name:
