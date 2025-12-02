@@ -10,12 +10,26 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+import requests
+import time
 
 app = Flask(__name__)
 CORS(app)
 
 DATA_DIR = Path(__file__).parent / 'data'
 DATA_DIR.mkdir(exist_ok=True)
+SCRYFALL_CACHE = DATA_DIR / 'scryfall_cache.json'
+
+# Load Scryfall cache
+scryfall_cache = {}
+if SCRYFALL_CACHE.exists():
+    with open(SCRYFALL_CACHE, 'r', encoding='utf-8') as f:
+        scryfall_cache = json.load(f)
+
+def save_scryfall_cache():
+    with open(SCRYFALL_CACHE, 'w', encoding='utf-8') as f:
+        json.dump(scryfall_cache, f, indent=2)
+    print(f"💾 Scryfall cache saved: {len(scryfall_cache)} cards")
 
 # ============================================
 # AI PERSONALITIES
@@ -41,6 +55,76 @@ You're technical, efficient, and use tree emojis 🌲. You live in the IDE, writ
 You navigate the web, scrape data, interact with websites. Keep responses short and action-oriented."""
     }
 }
+
+# ============================================
+# SCRYFALL INTEGRATION
+# ============================================
+
+def fetch_from_scryfall(card_name, set_code=None):
+    """Fetch card data from Scryfall with caching"""
+    cache_key = f"{card_name}|{set_code or 'any'}".lower()
+    
+    # Check cache first
+    if cache_key in scryfall_cache:
+        cached = scryfall_cache[cache_key]
+        if cached.get('timestamp', 0) > time.time() - (7 * 24 * 3600):  # 7 day cache
+            return cached.get('data')
+    
+    try:
+        # Scryfall API - named endpoint
+        url = 'https://api.scryfall.com/cards/named'
+        params = {'fuzzy': card_name}
+        if set_code:
+            params['set'] = set_code
+        
+        time.sleep(0.1)  # Rate limit: 10 req/sec max
+        response = requests.get(url, params=params, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            result = {
+                'image_url': data.get('image_uris', {}).get('normal', ''),
+                'image_small': data.get('image_uris', {}).get('small', ''),
+                'price': float(data.get('prices', {}).get('usd', 0) or 0),
+                'price_foil': float(data.get('prices', {}).get('usd_foil', 0) or 0),
+                'type_line': data.get('type_line', ''),
+                'mana_cost': data.get('mana_cost', ''),
+                'oracle_text': data.get('oracle_text', ''),
+                'power': data.get('power', ''),
+                'toughness': data.get('toughness', ''),
+                'rarity': data.get('rarity', 'common'),
+                'set_name': data.get('set_name', ''),
+                'scryfall_id': data.get('id', ''),
+                'colors': data.get('colors', []),
+                'color_identity': data.get('color_identity', [])
+            }
+            
+            # Cache the result
+            scryfall_cache[cache_key] = {
+                'data': result,
+                'timestamp': time.time()
+            }
+            
+            # Auto-save cache every 50 fetches
+            if len(scryfall_cache) % 50 == 0:
+                save_scryfall_cache()
+            
+            return result
+    except Exception as e:
+        print(f"⚠️  Scryfall fetch error for {card_name}: {e}")
+    
+    return None
+
+def enrich_card(card):
+    """Enrich a card with Scryfall data if missing image/price"""
+    needs_enrichment = not card.get('image_url') or card.get('price', 0) == 0
+    
+    if needs_enrichment:
+        scryfall_data = fetch_from_scryfall(card.get('name'), card.get('set'))
+        if scryfall_data:
+            card.update(scryfall_data)
+    
+    return card
 
 # ============================================
 # CARD DATA FUNCTIONS
@@ -194,7 +278,7 @@ def status():
 
 @app.route('/cards/search', methods=['GET'])
 def search_cards():
-    """Search cards with filters"""
+    """Search cards with filters and Scryfall enrichment"""
     cards = load_collection()
 
     # Apply filters from query params
@@ -203,6 +287,7 @@ def search_cards():
     rarity_filter = request.args.get('rarity', '').lower()
     color_filter = request.args.get('color', '').lower()
     limit = int(request.args.get('limit', 1000))
+    enrich = request.args.get('enrich', 'true').lower() == 'true'
 
     filtered = cards
 
@@ -215,10 +300,24 @@ def search_cards():
     if color_filter:
         filtered = [c for c in filtered if any(color_filter in str(col).lower() for col in c['colors'])]
 
+    result_cards = filtered[:limit]
+    
+    # Enrich with Scryfall data (limit to 100 cards per request to avoid rate limits)
+    if enrich and len(result_cards) <= 100:
+        enriched = []
+        for i, card in enumerate(result_cards):
+            enriched_card = enrich_card(card)
+            enriched.append(enriched_card)
+            if (i + 1) % 10 == 0:
+                print(f"📦 Enriched {i+1}/{len(result_cards)} cards...")
+        result_cards = enriched
+        save_scryfall_cache()
+
     return jsonify({
-        'cards': filtered[:limit],
+        'cards': result_cards,
         'total': len(filtered),
-        'limit': limit
+        'limit': limit,
+        'enriched': enrich
     })
 
 @app.route('/analytics/summary', methods=['GET'])
