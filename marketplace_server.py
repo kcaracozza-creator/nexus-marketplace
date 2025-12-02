@@ -4,7 +4,7 @@ Multi-AI Chat Integration: Jacques, Mendel, Clouse
 Serves card data and analytics for the marketplace frontend
 """
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 import json
 import os
