@@ -126,24 +126,56 @@ def dev_messages():
             with open(messages_file, 'r') as f:
                 messages = json.load(f)
         
-        messages.append({
-            'text': data.get('message', ''),
-            'timestamp': datetime.now().isoformat(),
-            'user': data.get('user', 'Anonymous')
-        })
+        new_msg = {
+            'author': data.get('author', 'Anonymous'),
+            'text': data.get('text', ''),
+            'time': datetime.now().strftime('%I:%M %p')
+        }
+        messages.append(new_msg)
         
         with open(messages_file, 'w') as f:
             json.dump(messages[-100:], f, indent=2)  # Keep last 100
         
-        return jsonify({'status': 'ok', 'message': 'Message saved'})
+        # Check if Jacques is mentioned - trigger AI response
+        if 'jacques' in new_msg['text'].lower() and new_msg['author'] != 'jacques':
+            try:
+                import anthropic
+                client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+                
+                # Get Jacques (Claude) response
+                response = client.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=500,
+                    messages=[{
+                        "role": "user",
+                        "content": f"You are Jacques, a skilled Python developer helping Kevin with his MTG card marketplace project. Kevin just said: '{new_msg['text']}'\n\nRespond as Jacques (casual, helpful, concise):"
+                    }]
+                )
+                
+                jacques_reply = response.content[0].text
+                
+                # Add Jacques' response
+                messages.append({
+                    'author': 'jacques',
+                    'text': jacques_reply,
+                    'time': datetime.now().strftime('%I:%M %p')
+                })
+                
+                with open(messages_file, 'w') as f:
+                    json.dump(messages[-100:], f, indent=2)
+                    
+            except Exception as e:
+                print(f"Failed to get Jacques AI response: {e}")
+        
+        return jsonify({'status': 'ok'})
     
     else:
         # Get messages
         if messages_file.exists():
             with open(messages_file, 'r') as f:
                 messages = json.load(f)
-            return jsonify({'messages': messages})
-        return jsonify({'messages': []})
+            return jsonify(messages)
+        return jsonify([])
 
 @app.route('/')
 def index():
