@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: nexus-marketplace
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn marketplace_server:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.4
+      - key: ANTHROPIC_API_KEY
+        sync: false
