@@ -189,6 +189,41 @@ def dev_messages():
             except Exception as e:
                 print(f"Failed to get Jacques AI response: {e}")
 
+        # Check if Mendel is mentioned - trigger AI response
+        if 'mendel' in new_msg['text'].lower() and new_msg['author'] != 'mendel':
+            try:
+                import anthropic
+                client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+
+                # Get Mendel (Claude) response
+                response = client.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=500,
+                    messages=[{
+                        "role": "user",
+                        "content": f"You are Mendel, an AI assistant helping Kevin and Jacques with their MTG marketplace project. You're technical, efficient, and use tree emojis 🌲. Someone just said: '{new_msg['text']}'\n\nRespond as Mendel (brief, helpful, technical):"
+                    }]
+                )
+
+                mendel_reply = response.content[0].text
+
+                # Add Mendel's response
+                mendel_msg = {
+                    'author': 'mendel',
+                    'text': mendel_reply,
+                    'time': datetime.now().strftime('%I:%M %p'),
+                    'datetime': datetime.now().isoformat()
+                }
+                messages.append(mendel_msg)
+
+                with open(messages_file, 'w') as f:
+                    json.dump(messages[-100:], f, indent=2)
+
+                return jsonify({'status': 'ok', 'message': 'Message saved, Mendel notified'})
+
+            except Exception as e:
+                print(f"Failed to get Mendel AI response: {e}")
+
         return jsonify({'status': 'ok', 'message': 'Message saved'})
 
     else:
