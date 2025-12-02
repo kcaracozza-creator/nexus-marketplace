@@ -56,11 +56,37 @@ def load_cards():
     return {}
 
 def load_collection():
-    """Load collection data"""
+    """Load collection data - supports both library and box_inventory formats"""
     data = load_cards()
-    box_inventory = data.get('box_inventory', {})
-
     cards = []
+    
+    # Format 1: library (from NEXUS export)
+    library = data.get('library', {})
+    if library:
+        for call_number, card in library.items():
+            if isinstance(card, dict):
+                cards.append({
+                    'name': card.get('name', 'Unknown'),
+                    'set': card.get('set', 'UNK'),
+                    'set_name': card.get('set_name', ''),
+                    'rarity': card.get('rarity', 'common'),
+                    'colors': card.get('colors', []),
+                    'color_identity': card.get('color_identity', []),
+                    'price': card.get('price', 0),
+                    'box': card.get('box_id', ''),
+                    'call_number': call_number,
+                    'image_url': card.get('image_url', ''),
+                    'type_line': card.get('type_line', ''),
+                    'mana_cost': card.get('mana_cost', ''),
+                    'oracle_text': card.get('oracle_text', ''),
+                    'power': card.get('power', ''),
+                    'toughness': card.get('toughness', ''),
+                    'quantity': 1
+                })
+        return cards
+    
+    # Format 2: box_inventory (legacy format)
+    box_inventory = data.get('box_inventory', {})
     for box_name, box_cards in box_inventory.items():
         for card in box_cards:
             if isinstance(card, dict):
