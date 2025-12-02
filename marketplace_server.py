@@ -286,7 +286,10 @@ def dev_messages():
 @app.route('/')
 def index():
     """Serve marketplace HTML"""
-    return send_file('marketplace.html')
+    html_path = Path(__file__).parent / 'marketplace.html'
+    if html_path.exists():
+        return send_file(html_path)
+    return jsonify({'error': 'marketplace.html not found'}), 404
 
 # ============================================
 # RUN
