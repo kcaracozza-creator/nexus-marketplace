@@ -286,7 +286,7 @@ def dev_messages():
 @app.route('/')
 def index():
     """Serve marketplace HTML"""
-    return send_from_directory('E:\\Downloads', 'marketplace.html')
+    return send_file('marketplace.html')
 
 # ============================================
 # RUN
