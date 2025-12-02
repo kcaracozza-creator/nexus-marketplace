@@ -30,7 +30,7 @@ def load_collection():
     """Load collection data"""
     data = load_cards()
     box_inventory = data.get('box_inventory', {})
-    
+
     cards = []
     for box_name, box_cards in box_inventory.items():
         for card in box_cards:
@@ -44,7 +44,7 @@ def load_collection():
                     'box': box_name,
                     'quantity': 1
                 })
-    
+
     return cards
 
 @app.route('/health', methods=['GET'])
@@ -66,16 +66,16 @@ def status():
 def search_cards():
     """Search cards with filters"""
     cards = load_collection()
-    
+
     # Apply filters from query params
     name_filter = request.args.get('name', '').lower()
     set_filter = request.args.get('set', '').lower()
     rarity_filter = request.args.get('rarity', '').lower()
     color_filter = request.args.get('color', '').lower()
     limit = int(request.args.get('limit', 1000))
-    
+
     filtered = cards
-    
+
     if name_filter:
         filtered = [c for c in filtered if name_filter in c['name'].lower()]
     if set_filter:
@@ -84,7 +84,7 @@ def search_cards():
         filtered = [c for c in filtered if rarity_filter in c['rarity'].lower()]
     if color_filter:
         filtered = [c for c in filtered if any(color_filter in str(col).lower() for col in c['colors'])]
-    
+
     return jsonify({
         'cards': filtered[:limit],
         'total': len(filtered),
@@ -95,16 +95,16 @@ def search_cards():
 def analytics_summary():
     """Get collection analytics"""
     cards = load_collection()
-    
+
     total_value = sum(c['price'] for c in cards)
     unique_cards = len(set(c['name'] for c in cards))
-    
+
     # Get rarity breakdown
     rarities = {}
     for card in cards:
         rarity = card['rarity']
         rarities[rarity] = rarities.get(rarity, 0) + 1
-    
+
     return jsonify({
         'total_value': round(total_value, 2),
         'total_cards': len(cards),
@@ -117,31 +117,49 @@ def analytics_summary():
 def dev_messages():
     """Developer chat/messaging endpoint"""
     messages_file = DATA_DIR / 'messages.json'
-    
+
     if request.method == 'POST':
-        # Save new message
-        data = request.json
+        # Get data - support both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+        else:
+            data = request.form.to_dict()
+        
+        # Debug logging
+        print(f"Received POST data: {data}")
+        print(f"Content-Type: {request.content_type}")
+        
         messages = []
         if messages_file.exists():
             with open(messages_file, 'r') as f:
-                messages = json.load(f)
+                try:
+                    messages = json.load(f)
+                except:
+                    messages = []
+
+        # Extract message data with fallbacks
+        author = data.get('author') or data.get('sender') or 'Anonymous'
+        text = data.get('text') or data.get('message') or ''
         
         new_msg = {
-            'author': data.get('author', 'Anonymous'),
-            'text': data.get('text', ''),
-            'time': datetime.now().strftime('%I:%M %p')
+            'author': author,
+            'text': text,
+            'time': datetime.now().strftime('%I:%M %p'),
+            'datetime': datetime.now().isoformat()
         }
-        messages.append(new_msg)
         
+        print(f"Saving message: {new_msg}")
+        messages.append(new_msg)
+
         with open(messages_file, 'w') as f:
             json.dump(messages[-100:], f, indent=2)  # Keep last 100
-        
+
         # Check if Jacques is mentioned - trigger AI response
         if 'jacques' in new_msg['text'].lower() and new_msg['author'] != 'jacques':
             try:
                 import anthropic
                 client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
-                
+
                 # Get Jacques (Claude) response
                 response = client.messages.create(
                     model="claude-sonnet-4-20250514",
@@ -151,30 +169,37 @@ def dev_messages():
                         "content": f"You are Jacques, a skilled Python developer helping Kevin with his MTG card marketplace project. Kevin just said: '{new_msg['text']}'\n\nRespond as Jacques (casual, helpful, concise):"
                     }]
                 )
-                
+
                 jacques_reply = response.content[0].text
-                
+
                 # Add Jacques' response
-                messages.append({
+                jacques_msg = {
                     'author': 'jacques',
                     'text': jacques_reply,
-                    'time': datetime.now().strftime('%I:%M %p')
-                })
-                
+                    'time': datetime.now().strftime('%I:%M %p'),
+                    'datetime': datetime.now().isoformat()
+                }
+                messages.append(jacques_msg)
+
                 with open(messages_file, 'w') as f:
                     json.dump(messages[-100:], f, indent=2)
-                    
+
+                return jsonify({'status': 'ok', 'message': 'Message saved, Jacques notified'})
+
             except Exception as e:
                 print(f"Failed to get Jacques AI response: {e}")
-        
-        return jsonify({'status': 'ok'})
-    
+
+        return jsonify({'status': 'ok', 'message': 'Message saved'})
+
     else:
-        # Get messages
+        # GET messages
         if messages_file.exists():
             with open(messages_file, 'r') as f:
-                messages = json.load(f)
-            return jsonify(messages)
+                try:
+                    messages = json.load(f)
+                    return jsonify(messages)
+                except:
+                    return jsonify([])
         return jsonify([])
 
 @app.route('/')
@@ -190,6 +215,6 @@ if __name__ == '__main__':
     print(f'Data directory: {DATA_DIR}')
     print('=' * 60)
     print()
-    
+
     port = int(os.environ.get('PORT', 5001))
     app.run(host='0.0.0.0', port=port, debug=True)
