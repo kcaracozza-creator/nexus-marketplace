@@ -10,35 +10,42 @@
         header{background:#141419;padding:12px 20px;border-bottom:1px solid #c9a227;display:flex;align-items:center;justify-content:space-between}
         .logo{color:#c9a227;font-weight:700;font-size:18px;letter-spacing:1px}
         nav{display:flex;gap:20px;align-items:center}
-        nav a{color:#888;text-decoration:none;font-size:12px;cursor:pointer}
+        nav a{color:#888;text-decoration:none;font-size:12px}
         nav a:hover{color:#c9a227}
         .status{font-size:10px;padding:4px 10px;border-radius:10px}
         .status.on{background:#143d1f;color:#4a8}
         .status.off{background:#3d1414;color:#c44}
+        
         .search-bar{background:#141419;padding:15px 20px;border-bottom:1px solid #252530;display:flex;gap:10px;align-items:center}
         .search-bar input{flex:1;padding:10px 15px;background:#1a1a22;border:1px solid #2a2a35;border-radius:4px;color:#ddd;font-size:13px}
         .search-bar input:focus{outline:none;border-color:#c9a227}
         .search-bar button{padding:10px 20px;background:#c9a227;border:none;border-radius:4px;color:#000;font-weight:600;cursor:pointer}
         .search-bar button:hover{background:#d4af37}
+        
         .stats{display:flex;justify-content:center;gap:40px;padding:15px;background:#1a1a22;border-bottom:1px solid #252530}
         .stat-item{text-align:center}
         .stat-value{font-size:18px;font-weight:700;color:#c9a227}
         .stat-label{font-size:10px;color:#666;text-transform:uppercase}
+        
         main{display:flex;min-height:calc(100vh - 180px)}
+        
         .sidebar{width:200px;background:#141419;padding:15px;border-right:1px solid #252530}
         .filter-group{margin-bottom:20px}
         .filter-title{font-size:10px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+        .filter-group select{width:100%;padding:8px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
         .filter-group label{display:block;padding:4px 0;font-size:11px;cursor:pointer}
         .filter-group input[type=checkbox]{margin-right:6px;accent-color:#c9a227}
         .price-inputs{display:flex;gap:5px}
         .price-inputs input{width:50%;padding:6px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
         .clear-btn{width:100%;padding:8px;background:transparent;border:1px solid #2a2a35;color:#888;border-radius:3px;cursor:pointer;font-size:11px;margin-top:10px}
         .clear-btn:hover{border-color:#c9a227;color:#c9a227}
+        
         .content{flex:1;padding:20px}
         .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
         .results-count{font-size:12px;color:#888}
         .results-count b{color:#c9a227}
         .sort-select{padding:6px 10px;background:#1a1a22;border:1px solid #2a2a35;color:#ddd;border-radius:3px;font-size:11px}
+        
         .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px}
         .card{background:#1a1a22;border:1px solid #252530;border-radius:6px;overflow:hidden;cursor:pointer;transition:all .2s}
         .card:hover{border-color:#c9a227;transform:translateY(-2px)}
@@ -53,11 +60,13 @@
         .card-rarity.rare{background:#1a1a4a;color:#ffd700}
         .card-rarity.uncommon{background:#1a3a1a;color:#c0c0c0}
         .card-rarity.common{background:#2a2a2a;color:#888}
+        
         .pagination{display:flex;justify-content:center;gap:5px;margin-top:20px}
         .pagination button{padding:8px 12px;background:#1a1a22;border:1px solid #252530;color:#ddd;border-radius:3px;cursor:pointer;font-size:11px}
         .pagination button:hover{border-color:#c9a227}
         .pagination button.active{background:#c9a227;color:#000;border-color:#c9a227}
         .pagination button:disabled{opacity:.3;cursor:not-allowed}
+        
         .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;align-items:center;justify-content:center}
         .modal.show{display:flex}
         .modal-content{background:#141419;border:1px solid #252530;border-radius:8px;max-width:800px;width:95%;max-height:90vh;overflow:auto;display:flex}
@@ -75,74 +84,85 @@
         .modal-actions button{padding:12px 25px;border-radius:4px;font-weight:600;cursor:pointer;font-size:12px}
         .btn-primary{background:#c9a227;border:none;color:#000}
         .btn-secondary{background:transparent;border:1px solid #2a2a35;color:#ddd}
+        
         .loading{text-align:center;padding:60px;color:#666}
         .spinner{width:30px;height:30px;border:3px solid #252530;border-top-color:#c9a227;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 15px}
         @keyframes spin{to{transform:rotate(360deg)}}
         .error{background:rgba(200,60,60,.1);border:1px solid #c44;padding:20px;border-radius:6px;color:#c44;text-align:center}
         .empty{text-align:center;padding:60px;color:#666}
         .empty-icon{font-size:48px;margin-bottom:15px}
-
-        /* DEV CHAT PANEL */
-        .dev-chat{position:fixed;bottom:20px;right:20px;width:380px;background:#141419;border:1px solid #c9a227;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:999;display:flex;flex-direction:column;max-height:500px;transition:all .3s ease}
-        .dev-chat.collapsed{max-height:48px;overflow:hidden}
-        .dev-chat-header{padding:12px 16px;background:#1a1a22;border-bottom:1px solid #252530;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+        
+        @media(max-width:768px){
+            .sidebar{display:none}
+            .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+            .modal-content{flex-direction:column}
+            .modal-img{width:100%;height:200px}
+        }
+        
+        /* Dev Chat */
+        .dev-chat{position:fixed;bottom:0;right:20px;width:400px;background:#141419;border:2px solid #c9a227;border-bottom:none;border-radius:8px 8px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);z-index:999;transition:height 0.3s}
+        .dev-chat.collapsed{height:45px}
+        .dev-chat:not(.collapsed){height:500px}
+        .dev-chat-header{background:#1a1a22;padding:12px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a2a35}
         .dev-chat-title{font-weight:700;font-size:13px;color:#c9a227;display:flex;align-items:center;gap:8px}
-        .dev-chat-title .dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-        .dev-chat-toggle{background:none;border:none;color:#666;font-size:18px;cursor:pointer;transition:transform .3s}
-        .dev-chat.collapsed .dev-chat-toggle{transform:rotate(180deg)}
-        .dev-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:250px;max-height:350px}
-        .chat-msg{display:flex;flex-direction:column;gap:4px}
-        .chat-msg.user{align-items:flex-end}
-        .chat-msg.ai{align-items:flex-start}
-        .chat-author{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-        .chat-author.kevin{color:#c9a227}
-        .chat-author.jacques{color:#7c5cff}
-        .chat-author.mendel{color:#10b981}
-        .chat-author.clouse{color:#3b82f6}
-        .chat-bubble{max-width:85%;padding:10px 14px;border-radius:12px;font-size:12px;line-height:1.5}
-        .chat-msg.user .chat-bubble{background:#c9a227;color:#000;border-bottom-right-radius:4px}
-        .chat-msg.ai .chat-bubble{background:#1a1a22;border:1px solid #252530;border-bottom-left-radius:4px}
-        .chat-msg.ai.jacques .chat-bubble{border-left:3px solid #7c5cff}
-        .chat-msg.ai.mendel .chat-bubble{border-left:3px solid #10b981}
-        .chat-msg.ai.clouse .chat-bubble{border-left:3px solid #3b82f6}
-        .chat-time{font-size:9px;color:#666}
-        .dev-chat-input{padding:12px 16px;border-top:1px solid #252530;display:flex;gap:8px}
-        .dev-chat-input input{flex:1;padding:10px 14px;background:#1a1a22;border:1px solid #252530;border-radius:8px;color:#ddd;font-size:12px}
-        .dev-chat-input input:focus{outline:none;border-color:#c9a227}
-        .dev-chat-input button{padding:10px 16px;background:#c9a227;border:none;border-radius:8px;color:#000;font-weight:600;font-size:12px;cursor:pointer}
-        .dev-chat-input button:hover{background:#d4af37}
-        .dev-chat-input button:disabled{opacity:.5;cursor:not-allowed}
-        .chat-hint{padding:8px 16px;background:#1a1a22;font-size:10px;color:#666;text-align:center}
-        .chat-hint b{color:#888}
-        @media(max-width:768px){.sidebar{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.modal-content{flex-direction:column}.modal-img{width:100%;height:200px}.dev-chat{width:calc(100% - 20px);right:10px;bottom:10px}}
+        .dot{width:8px;height:8px;border-radius:50%;background:#4a8;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+        .dev-chat-toggle{background:none;border:none;color:#888;font-size:16px;cursor:pointer;transition:transform 0.3s}
+        .dev-chat:not(.collapsed) .dev-chat-toggle{transform:rotate(180deg)}
+        .dev-chat-body{height:calc(100% - 100px);overflow-y:auto;padding:15px;background:#0d0d12}
+        .chat-msg{margin-bottom:12px}
+        .chat-author{font-weight:700;font-size:11px;margin-bottom:4px}
+        .chat-author.kevin{color:#ffd700}
+        .chat-author.jacques{color:#58a6ff}
+        .chat-author.mendel{color:#f85149}
+        .chat-author.clouse{color:#a371f7}
+        .chat-text{font-size:12px;line-height:1.5;color:#ddd;padding-left:8px}
+        .chat-input-area{display:flex;gap:8px;padding:12px;background:#1a1a22;border-top:1px solid #2a2a35}
+        .chat-input-area input{flex:1;padding:10px;background:#0d0d12;border:1px solid #2a2a35;color:#ddd;border-radius:4px;font-size:12px}
+        .chat-input-area button{padding:10px 20px;background:#c9a227;border:none;border-radius:4px;color:#000;font-weight:600;cursor:pointer}
+        .chat-input-area button:hover{background:#d4af37}
     </style>
 </head>
 <body>
+
 <header>
     <div class="logo">NEXUS MARKETPLACE</div>
     <nav>
         <a href="#browse">Browse</a>
         <a href="#sell">Sell Cards</a>
-        <a href="#orders">Orders</a>
-        <a onclick="toggleChat()">Dev Chat</a>
+        <a onclick="toggleChat()" style="cursor:pointer">Dev Chat 🎯🤖🌐</a>
         <span class="status off" id="serverStatus">● Offline</span>
     </nav>
 </header>
+
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search cards by name..." onkeyup="if(event.key==='Enter')searchCards()">
     <button onclick="searchCards()">Search</button>
 </div>
+
 <div class="stats">
-    <div class="stat-item"><div class="stat-value" id="totalCards">--</div><div class="stat-label">Cards Listed</div></div>
-    <div class="stat-item"><div class="stat-value" id="totalValue">--</div><div class="stat-label">Total Value</div></div>
-    <div class="stat-item"><div class="stat-value" id="uniqueSets">--</div><div class="stat-label">Sets</div></div>
+    <div class="stat-item">
+        <div class="stat-value" id="totalCards">--</div>
+        <div class="stat-label">Cards Listed</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="totalValue">--</div>
+        <div class="stat-label">Total Value</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="uniqueSets">--</div>
+        <div class="stat-label">Sets</div>
+    </div>
 </div>
+
 <main>
     <aside class="sidebar">
         <div class="filter-group">
             <div class="filter-title">Price Range</div>
-            <div class="price-inputs"><input type="number" id="priceMin" placeholder="Min"><input type="number" id="priceMax" placeholder="Max"></div>
+            <div class="price-inputs">
+                <input type="number" id="priceMin" placeholder="Min">
+                <input type="number" id="priceMax" placeholder="Max">
+            </div>
         </div>
         <div class="filter-group">
             <div class="filter-title">Rarity</div>
@@ -161,6 +181,7 @@
         </div>
         <button class="clear-btn" onclick="clearFilters()">Clear All Filters</button>
     </aside>
+    
     <div class="content">
         <div class="results-header">
             <span class="results-count">Showing <b id="showCount">0</b> of <b id="totalCount">0</b> cards</span>
@@ -177,7 +198,6 @@
     </div>
 </main>
 
-<!-- Card Detail Modal -->
 <div class="modal" id="cardModal" onclick="if(event.target===this)closeModal()">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -195,30 +215,16 @@
     </div>
 </div>
 
-<!-- Dev Chat Panel -->
-<div class="dev-chat" id="devChat">
-    <div class="dev-chat-header" onclick="toggleChat()">
-        <div class="dev-chat-title"><span class="dot"></span>Dev Squad Chat</div>
-        <button class="dev-chat-toggle">▼</button>
-    </div>
-    <div class="chat-hint">Mention <b>@jacques</b>, <b>@mendel</b>, or <b>@clouse</b> to summon an AI</div>
-    <div class="dev-chat-messages" id="chatMessages"></div>
-    <div class="dev-chat-input">
-        <input type="text" id="chatInput" placeholder="Type a message..." onkeyup="if(event.key==='Enter')sendMessage()">
-        <button onclick="sendMessage()" id="sendBtn">Send</button>
-    </div>
-</div>
-
 <script>
-const API = window.location.origin;
-let allCards = [], filteredCards = [], page = 1, chatMessages = [];
-const perPage = 48, CHAT_USER = 'Kevin';
+const API = 'https://nexus-marketplace-1.onrender.com';
+let allCards = [];
+let filteredCards = [];
+let page = 1;
+const perPage = 48;
 
 async function init() {
     await checkServer();
     await loadCards();
-    await loadChatMessages();
-    setInterval(loadChatMessages, 3000);
 }
 
 async function checkServer() {
@@ -226,44 +232,88 @@ async function checkServer() {
     try {
         const r = await fetch(API + '/health');
         if (r.ok) {
-            el.className = 'status on'; el.textContent = '● Online';
+            el.className = 'status on';
+            el.textContent = '● Online';
+            
             const stats = await (await fetch(API + '/status')).json();
             document.getElementById('totalCards').textContent = (stats.cards_in_db || 0).toLocaleString();
+            
             const analytics = await (await fetch(API + '/analytics/summary')).json();
             document.getElementById('totalValue').textContent = '$' + (analytics.total_value || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
         }
-    } catch(e) { el.className = 'status off'; el.textContent = '● Offline'; }
+    } catch(e) {
+        el.className = 'status off';
+        el.textContent = '● Offline';
+    }
 }
 
 async function loadCards() {
     const grid = document.getElementById('cardGrid');
     grid.innerHTML = '<div class="loading"><div class="spinner"></div>Loading cards...</div>';
+    
     try {
         const r = await fetch(API + '/cards/search?limit=1000');
         const data = await r.json();
         allCards = data.cards || data.results || [];
-        document.getElementById('uniqueSets').textContent = new Set(allCards.map(c => c.set_name || c.set).filter(Boolean)).size;
+        
+        console.log('✅ Loaded cards:', allCards.length);
+        if (allCards.length > 0) {
+            console.log('Sample card:', allCards[0]);
+        } else {
+            console.warn('⚠️ No cards loaded from API');
+        }
+        
+        // Count unique sets
+        const sets = new Set(allCards.map(c => c.set_name || c.set).filter(Boolean));
+        document.getElementById('uniqueSets').textContent = sets.size;
+        
         applyFilters();
-    } catch(e) { grid.innerHTML = '<div class="error"><b>Cannot connect to server</b></div>'; }
+    } catch(e) {
+        console.error('❌ Load error:', e);
+        grid.innerHTML = '<div class="error"><b>Cannot connect to server</b><br><br>Make sure server is running</div>';
+    }
 }
 
 function searchCards() {
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
-    filteredCards = q ? allCards.filter(c => (c.name || '').toLowerCase().includes(q)) : [...allCards];
-    page = 1; renderCards();
+    if (!q) {
+        filteredCards = [...allCards];
+    } else {
+        filteredCards = allCards.filter(c => (c.name || '').toLowerCase().includes(q));
+    }
+    page = 1;
+    renderCards();
 }
 
 function applyFilters() {
     let cards = [...allCards];
+    
+    // Search
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     if (q) cards = cards.filter(c => (c.name || '').toLowerCase().includes(q));
+    
+    // Price
     const minP = parseFloat(document.getElementById('priceMin').value) || 0;
     const maxP = parseFloat(document.getElementById('priceMax').value) || 999999;
-    cards = cards.filter(c => { const p = parseFloat(c.price) || 0; return p >= minP && p <= maxP; });
-    const rarities = [...document.querySelectorAll('.filter-group input[value="mythic"],.filter-group input[value="rare"],.filter-group input[value="uncommon"],.filter-group input[value="common"]')].filter(c => c.checked).map(c => c.value);
+    cards = cards.filter(c => {
+        const p = parseFloat(c.price) || 0;
+        return p >= minP && p <= maxP;
+    });
+    
+    // Rarity
+    const rarities = [...document.querySelectorAll('.filter-group input[value="mythic"], .filter-group input[value="rare"], .filter-group input[value="uncommon"], .filter-group input[value="common"]')]
+        .filter(c => c.checked).map(c => c.value);
     if (rarities.length) cards = cards.filter(c => rarities.includes((c.rarity || '').toLowerCase()));
-    const colors = [...document.querySelectorAll('.filter-group input[value="W"],.filter-group input[value="U"],.filter-group input[value="B"],.filter-group input[value="R"],.filter-group input[value="G"]')].filter(c => c.checked).map(c => c.value);
-    if (colors.length) cards = cards.filter(c => colors.some(col => (c.colors || c.color_identity || []).includes(col)));
+    
+    // Color
+    const colors = [...document.querySelectorAll('.filter-group input[value="W"], .filter-group input[value="U"], .filter-group input[value="B"], .filter-group input[value="R"], .filter-group input[value="G"]')]
+        .filter(c => c.checked).map(c => c.value);
+    if (colors.length) cards = cards.filter(c => {
+        const cardColors = c.colors || c.color_identity || [];
+        return colors.some(col => cardColors.includes(col));
+    });
+    
+    // Sort
     const sort = document.getElementById('sortSelect').value;
     cards.sort((a, b) => {
         switch(sort) {
@@ -271,10 +321,14 @@ function applyFilters() {
             case 'name_desc': return (b.name || '').localeCompare(a.name || '');
             case 'price_desc': return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
             case 'price_asc': return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
+            case 'set': return (a.set_name || a.set || '').localeCompare(b.set_name || b.set || '');
             default: return 0;
         }
     });
-    filteredCards = cards; page = 1; renderCards();
+    
+    filteredCards = cards;
+    page = 1;
+    renderCards();
 }
 
 function clearFilters() {
@@ -283,100 +337,166 @@ function clearFilters() {
     document.getElementById('priceMax').value = '';
     document.getElementById('sortSelect').value = 'name_asc';
     document.querySelectorAll('.sidebar input[type=checkbox]').forEach(c => c.checked = false);
-    filteredCards = [...allCards]; page = 1; renderCards();
+    filteredCards = [...allCards];
+    page = 1;
+    renderCards();
 }
-
 
 function renderCards() {
     const grid = document.getElementById('cardGrid');
     const total = filteredCards.length;
     const start = (page - 1) * perPage;
     const pageCards = filteredCards.slice(start, start + perPage);
+    
     document.getElementById('showCount').textContent = pageCards.length;
     document.getElementById('totalCount').textContent = total;
+    
     if (!pageCards.length) {
         grid.innerHTML = '<div class="empty"><div class="empty-icon">🃏</div>No cards found</div>';
-        document.getElementById('pagination').innerHTML = ''; return;
+        document.getElementById('pagination').innerHTML = '';
+        return;
     }
+    
     grid.innerHTML = pageCards.map((c, i) => `
         <div class="card" onclick="openModal(${start + i})">
             ${c.image_url || (c.image_uris && c.image_uris.normal) ? 
-                `<img src="${c.image_url || c.image_uris.normal}" loading="lazy" onerror="this.style.display='none'">` :
-                `<div style="width:100%;aspect-ratio:.72;background:#141419;display:flex;align-items:center;justify-content:center;color:#444">No Image</div>`}
+                `<img src="${c.image_url || c.image_uris.normal}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect fill=%22%23141419%22 width=%22100%22 height=%22140%22/><text x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23444%22 font-size=%228%22>No Image</text></svg>'">` :
+                `<div style="width:100%;aspect-ratio:.72;background:#141419;display:flex;align-items:center;justify-content:center;color:#444;font-size:10px">No Image</div>`
+            }
             <div class="card-body">
-                <div class="card-name" title="${c.name || ''}">${c.name || 'Unknown'}</div>
-                <div class="card-set">${c.set_name || c.set || ''}</div>
+                <div class="card-name" title="${c.name || 'Unknown'}">${c.name || 'Unknown'}</div>
+                <div class="card-set">${c.set_name || c.set || 'Unknown Set'}</div>
                 <div class="card-footer">
                     <div class="card-price">${c.price ? '$' + parseFloat(c.price).toFixed(2) : '--'}</div>
                     <span class="card-rarity ${(c.rarity || '').toLowerCase()}">${c.rarity || ''}</span>
                 </div>
             </div>
-        </div>`).join('');
+        </div>
+    `).join('');
+    
     renderPagination(total);
 }
 
 function renderPagination(total) {
     const pages = Math.ceil(total / perPage);
-    if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+    if (pages <= 1) {
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+    
     let html = `<button ${page === 1 ? 'disabled' : ''} onclick="goPage(${page - 1})">← Prev</button>`;
-    for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) html += `<button class="${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    
+    for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) {
+        html += `<button class="${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    }
+    
     html += `<button ${page === pages ? 'disabled' : ''} onclick="goPage(${page + 1})">Next →</button>`;
+    
     document.getElementById('pagination').innerHTML = html;
 }
 
-function goPage(p) { page = p; renderCards(); window.scrollTo({ top: 300, behavior: 'smooth' }); }
+function goPage(p) {
+    page = p;
+    renderCards();
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+}
 
 function openModal(idx) {
-    const c = filteredCards[idx]; if (!c) return;
+    const c = filteredCards[idx];
+    if (!c) return;
+    
     document.getElementById('modalImg').src = c.image_url || (c.image_uris && c.image_uris.normal) || '';
     document.getElementById('modalName').textContent = c.name || 'Unknown';
     document.getElementById('modalSet').textContent = (c.set_name || c.set || '') + ' • ' + (c.rarity || '');
-    document.getElementById('modalPrice').textContent = c.price ? '$' + parseFloat(c.price).toFixed(2) : 'N/A';
-    let d = '';
-    if (c.type_line) d += `<b>Type:</b> ${c.type_line}<br>`;
-    if (c.mana_cost) d += `<b>Mana:</b> ${c.mana_cost}<br>`;
-    if (c.oracle_text) d += `<b>Text:</b> ${c.oracle_text}<br>`;
-    if (c.power && c.toughness) d += `<b>P/T:</b> ${c.power}/${c.toughness}<br>`;
-    document.getElementById('modalDetails').innerHTML = d || 'No details';
+    document.getElementById('modalPrice').textContent = c.price ? '$' + parseFloat(c.price).toFixed(2) : 'Price not available';
+    
+    let details = '';
+    if (c.type_line) details += `<b>Type:</b> ${c.type_line}<br>`;
+    if (c.mana_cost) details += `<b>Mana Cost:</b> ${c.mana_cost}<br>`;
+    if (c.oracle_text) details += `<b>Text:</b> ${c.oracle_text}<br>`;
+    if (c.power && c.toughness) details += `<b>P/T:</b> ${c.power}/${c.toughness}<br>`;
+    if (c.call_number) details += `<b>Location:</b> ${c.call_number}<br>`;
+    if (c.scryfall_id) details += `<b>Scryfall ID:</b> ${c.scryfall_id}<br>`;
+    document.getElementById('modalDetails').innerHTML = details || 'No additional details';
+    
     document.getElementById('cardModal').classList.add('show');
 }
-function closeModal() { document.getElementById('cardModal').classList.remove('show'); }
 
-// DEV CHAT
-function toggleChat() { document.getElementById('devChat').classList.toggle('collapsed'); }
-
-async function loadChatMessages() {
-    try {
-        const r = await fetch(API + '/dev/messages');
-        if (r.ok) { chatMessages = await r.json(); renderChatMessages(); }
-    } catch(e) {}
+function closeModal() {
+    document.getElementById('cardModal').classList.remove('show');
 }
 
-function renderChatMessages() {
-    const c = document.getElementById('chatMessages');
-    if (!chatMessages.length) { c.innerHTML = `<div style="text-align:center;color:#666;padding:40px;font-size:11px">No messages yet.<br><br>Say hi!<br>Try: "hey @jacques what's up?"</div>`; return; }
-    c.innerHTML = chatMessages.map(m => {
-        const a = (m.author || '').toLowerCase();
-        const isAI = ['jacques','mendel','clouse'].includes(a);
-        return `<div class="chat-msg ${isAI ? 'ai ' + a : 'user'}"><span class="chat-author ${a}">${m.author}</span><div class="chat-bubble">${escapeHtml(m.text)}</div><span class="chat-time">${m.time || ''}</span></div>`;
-    }).join('');
-    c.scrollTop = c.scrollHeight;
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+
+function toggleChat() {
+    const chat = document.getElementById('devChat');
+    chat.classList.toggle('collapsed');
+    if (!chat.classList.contains('collapsed')) {
+        loadChat();
+        document.getElementById('chatInput').focus();
+    }
+}
+
+let chatMessages = [];
+const CHAT_USER = 'kevin';
+
+async function loadChat() {
+    try {
+        const res = await fetch(`${API}/dev/messages`);
+        chatMessages = await res.json();
+        renderChat();
+    } catch(e) {
+        console.error('Chat load error:', e);
+    }
+}
+
+function renderChat() {
+    const body = document.getElementById('chatBody');
+    body.innerHTML = chatMessages.map(m => `
+        <div class="chat-msg">
+            <div class="chat-author ${m.author}">${m.author.toUpperCase()} ${m.time || ''}</div>
+            <div class="chat-text">${m.text}</div>
+        </div>
+    `).join('');
+    body.scrollTop = body.scrollHeight;
 }
 
 async function sendMessage() {
-    const input = document.getElementById('chatInput'), btn = document.getElementById('sendBtn');
-    const text = input.value.trim(); if (!text) return;
-    input.disabled = btn.disabled = true; btn.textContent = '...';
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
     try {
-        const r = await fetch(API + '/dev/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ author: CHAT_USER, text }) });
-        if (r.ok) { input.value = ''; await loadChatMessages(); }
-    } catch(e) {}
-    input.disabled = btn.disabled = false; btn.textContent = 'Send'; input.focus();
+        await fetch(`${API}/dev/messages`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({author: CHAT_USER, text})
+        });
+        input.value = '';
+        setTimeout(loadChat, 500);
+    } catch(e) {
+        console.error('Send error:', e);
+    }
 }
 
-function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+setInterval(loadChat, 3000);
+
 init();
 </script>
+
+<div class="dev-chat collapsed" id="devChat">
+    <div class="dev-chat-header" onclick="toggleChat()">
+        <div class="dev-chat-title"><span class="dot"></span>Dev Squad Chat</div>
+        <button class="dev-chat-toggle">▼</button>
+    </div>
+    <div class="dev-chat-body" id="chatBody"></div>
+    <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Message Jacques, Mendel, Clouse..." onkeypress="if(event.key==='Enter')sendMessage()">
+        <button onclick="sendMessage()" id="sendBtn">Send</button>
+    </div>
+</div>
+
 </body>
 </html>
