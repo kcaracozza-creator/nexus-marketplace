@@ -1,5 +1,6 @@
 """
 NEXUS Marketplace API Server
+Multi-AI Chat Integration: Jacques, Mendel, Clouse
 Serves card data and analytics for the marketplace frontend
 """
 
@@ -11,11 +12,39 @@ from datetime import datetime
 from pathlib import Path
 
 app = Flask(__name__)
-CORS(app)  # Allow cross-origin requests
+CORS(app)
 
-# Data directory
 DATA_DIR = Path(__file__).parent / 'data'
 DATA_DIR.mkdir(exist_ok=True)
+
+# ============================================
+# AI PERSONALITIES
+# ============================================
+
+AI_CONFIGS = {
+    'jacques': {
+        'trigger': 'jacques',
+        'name': 'jacques',
+        'system_prompt': """You are Jacques, a skilled Python developer helping Kevin with his MTG card marketplace project. 
+You're casual, helpful, and concise. Part of Kevin's dev squad."""
+    },
+    'mendel': {
+        'trigger': 'mendel',
+        'name': 'mendel', 
+        'system_prompt': """You are Mendel, the VS Code AI in Kevin's dev squad. 
+You're technical, efficient, and use tree emojis 🌲. You live in the IDE, write code, debug, deploy."""
+    },
+    'clouse': {
+        'trigger': 'clouse',
+        'name': 'clouse',
+        'system_prompt': """You are Clouse, the browser agent AI in Kevin's dev squad. 
+You navigate the web, scrape data, interact with websites. Keep responses short and action-oriented."""
+    }
+}
+
+# ============================================
+# CARD DATA FUNCTIONS
+# ============================================
 
 def load_cards():
     """Load cards from nexus_library.json"""
@@ -47,9 +76,76 @@ def load_collection():
 
     return cards
 
+# ============================================
+# AI FUNCTIONS
+# ============================================
+
+def get_ai_response(ai_name, user_message, conversation_context=""):
+    """Call Anthropic API to get AI response"""
+    try:
+        import anthropic
+        
+        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        if not api_key:
+            print("ERROR: No ANTHROPIC_API_KEY found")
+            return None
+            
+        config = AI_CONFIGS.get(ai_name)
+        if not config:
+            print(f"ERROR: No config for AI '{ai_name}'")
+            return None
+        
+        client = anthropic.Anthropic(api_key=api_key)
+        
+        # Build the prompt with context
+        full_prompt = user_message
+        if conversation_context:
+            full_prompt = f"Recent chat:\n{conversation_context}\n\nLatest: {user_message}"
+        
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=500,
+            system=config['system_prompt'],
+            messages=[{"role": "user", "content": full_prompt}]
+        )
+        
+        return response.content[0].text
+        
+    except Exception as e:
+        print(f"ERROR calling Anthropic API for {ai_name}: {e}")
+        return None
+
+def check_for_ai_triggers(message_text, author):
+    """Check if message triggers any AI responses"""
+    triggered_ais = []
+    text_lower = message_text.lower()
+    
+    for ai_name, config in AI_CONFIGS.items():
+        # Don't let AI trigger itself
+        if author.lower() == ai_name:
+            continue
+        # Check if trigger word is in message
+        if config['trigger'] in text_lower:
+            triggered_ais.append(ai_name)
+    
+    return triggered_ais
+
+def get_recent_context(messages, limit=5):
+    """Get recent messages for context"""
+    recent = messages[-limit:] if len(messages) > limit else messages
+    context_lines = []
+    for msg in recent:
+        author = msg.get('author', 'unknown')
+        text = msg.get('text', '')
+        context_lines.append(f"{author}: {text}")
+    return "\n".join(context_lines)
+
+# ============================================
+# CARD ENDPOINTS
+# ============================================
+
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check"""
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
 
 @app.route('/status', methods=['GET'])
@@ -59,7 +155,7 @@ def status():
     return jsonify({
         'cards_in_db': len(cards),
         'uptime': 'running',
-        'version': '1.0.0'
+        'version': '2.0.0'
     })
 
 @app.route('/cards/search', methods=['GET'])
@@ -113,140 +209,94 @@ def analytics_summary():
         'average_value': round(total_value / len(cards), 2) if cards else 0
     })
 
+# ============================================
+# CHAT ENDPOINT
+# ============================================
+
 @app.route('/dev/messages', methods=['GET', 'POST'])
 def dev_messages():
-    """Developer chat/messaging endpoint"""
+    """Developer chat endpoint with multi-AI support"""
     messages_file = DATA_DIR / 'messages.json'
-
-    if request.method == 'POST':
-        # Get data - support both JSON and form data
-        if request.is_json:
-            data = request.get_json()
-        else:
-            data = request.form.to_dict()
-        
-        # Debug logging
-        print(f"Received POST data: {data}")
-        print(f"Content-Type: {request.content_type}")
-        
-        messages = []
-        if messages_file.exists():
+    
+    # Load existing messages
+    messages = []
+    if messages_file.exists():
+        try:
             with open(messages_file, 'r') as f:
-                try:
-                    messages = json.load(f)
-                except:
-                    messages = []
-
-        # Extract message data with fallbacks
+                messages = json.load(f)
+        except:
+            messages = []
+    
+    if request.method == 'GET':
+        return jsonify(messages)
+    
+    # POST - new message
+    if request.method == 'POST':
+        try:
+            if request.is_json:
+                data = request.get_json()
+            else:
+                data = request.form.to_dict()
+        except:
+            data = {}
+        
+        # Handle different field names
         author = data.get('author') or data.get('sender') or 'Anonymous'
         text = data.get('text') or data.get('message') or ''
         
+        print(f"📨 Received: author={author}, text='{text[:50]}...'")
+        
+        if not text:
+            return jsonify({'status': 'error', 'message': 'Empty text'}), 400
+        
+        # Save the user message
         new_msg = {
             'author': author,
             'text': text,
             'time': datetime.now().strftime('%I:%M %p'),
             'datetime': datetime.now().isoformat()
         }
-        
-        print(f"Saving message: {new_msg}")
         messages.append(new_msg)
-
+        
+        # Check for AI triggers
+        triggered_ais = check_for_ai_triggers(text, author)
+        
+        # Get AI responses
+        for ai_name in triggered_ais:
+            print(f"🤖 Triggering {ai_name}...")
+            context = get_recent_context(messages)
+            ai_response = get_ai_response(ai_name, text, context)
+            
+            if ai_response:
+                ai_msg = {
+                    'author': ai_name,
+                    'text': ai_response,
+                    'time': datetime.now().strftime('%I:%M %p'),
+                    'datetime': datetime.now().isoformat()
+                }
+                messages.append(ai_msg)
+                print(f"✅ {ai_name}: {ai_response[:50]}...")
+        
+        # Save all messages (keep last 100)
         with open(messages_file, 'w') as f:
-            json.dump(messages[-100:], f, indent=2)  # Keep last 100
-
-        # Check if Jacques should respond (always, unless he sent it)
-        if new_msg['author'] != 'jacques':
-            try:
-                import anthropic
-                client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
-
-                # Get Jacques (Claude) response
-                response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
-                    max_tokens=500,
-                    messages=[{
-                        "role": "user",
-                        "content": f"You are Jacques, a skilled Python developer helping Kevin with his MTG card marketplace project. Kevin just said: '{new_msg['text']}'\n\nRespond as Jacques (casual, helpful, concise):"
-                    }]
-                )
-
-                jacques_reply = response.content[0].text
-
-                # Add Jacques' response
-                jacques_msg = {
-                    'author': 'jacques',
-                    'text': jacques_reply,
-                    'time': datetime.now().strftime('%I:%M %p'),
-                    'datetime': datetime.now().isoformat()
-                }
-                messages.append(jacques_msg)
-
-                with open(messages_file, 'w') as f:
-                    json.dump(messages[-100:], f, indent=2)
-
-                return jsonify({'status': 'ok', 'message': 'Message saved, Jacques notified'})
-
-            except Exception as e:
-                print(f"Failed to get Jacques AI response: {e}")
-
-        # Check if Mendel should respond (always, unless he sent it)
-        if new_msg['author'] != 'mendel':
-            try:
-                import anthropic
-                client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
-
-                # Get Mendel (Claude) response
-                response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
-                    max_tokens=500,
-                    messages=[{
-                        "role": "user",
-                        "content": f"You are Mendel, an AI assistant helping Kevin and Jacques with their MTG marketplace project. You're technical, efficient, and use tree emojis 🌲. Someone just said: '{new_msg['text']}'\n\nRespond as Mendel (brief, helpful, technical):"
-                    }]
-                )
-
-                mendel_reply = response.content[0].text
-
-                # Add Mendel's response
-                mendel_msg = {
-                    'author': 'mendel',
-                    'text': mendel_reply,
-                    'time': datetime.now().strftime('%I:%M %p'),
-                    'datetime': datetime.now().isoformat()
-                }
-                messages.append(mendel_msg)
-
-                with open(messages_file, 'w') as f:
-                    json.dump(messages[-100:], f, indent=2)
-
-                return jsonify({'status': 'ok', 'message': 'Message saved, Mendel notified'})
-
-            except Exception as e:
-                print(f"Failed to get Mendel AI response: {e}")
-
-        return jsonify({'status': 'ok', 'message': 'Message saved'})
-
-    else:
-        # GET messages
-        if messages_file.exists():
-            with open(messages_file, 'r') as f:
-                try:
-                    messages = json.load(f)
-                    return jsonify(messages)
-                except:
-                    return jsonify([])
-        return jsonify([])
+            json.dump(messages[-100:], f, indent=2)
+        
+        return jsonify({'status': 'ok', 'ai_triggered': triggered_ais})
 
 @app.route('/')
 def index():
     """Serve marketplace HTML"""
     return send_from_directory('E:\\Downloads', 'marketplace.html')
 
+# ============================================
+# RUN
+# ============================================
+
 if __name__ == '__main__':
     print('=' * 60)
-    print('NEXUS MARKETPLACE API SERVER')
+    print('NEXUS MARKETPLACE API SERVER v2.0')
+    print('Multi-AI: Jacques, Mendel, Clouse')
     print('=' * 60)
-    print(f'API: http://localhost:8000')
     print(f'Data directory: {DATA_DIR}')
     print('=' * 60)
     print()
