@@ -292,6 +292,48 @@ def index():
     return jsonify({'error': 'marketplace.html not found'}), 404
 
 # ============================================
+# MCP ENDPOINT
+# ============================================
+
+@app.route('/mcp', methods=['POST'])
+def mcp_handler():
+    """Model Context Protocol handler"""
+    data = request.get_json()
+    method = data.get('method', '')
+    
+    if method == 'tools/list':
+        return jsonify({
+            'tools': [
+                {'name': 'search_cards', 'description': 'Search MTG cards in collection'},
+                {'name': 'get_analytics', 'description': 'Get collection analytics'},
+                {'name': 'send_chat', 'description': 'Send message to dev chat'}
+            ]
+        })
+    
+    if method == 'tools/call':
+        tool = data.get('params', {}).get('name')
+        args = data.get('params', {}).get('arguments', {})
+        
+        if tool == 'search_cards':
+            cards = load_collection()
+            query = args.get('query', '').lower()
+            results = [c for c in cards if query in c['name'].lower()][:20]
+            return jsonify({'result': results})
+        
+        if tool == 'get_analytics':
+            cards = load_collection()
+            return jsonify({'result': {
+                'total': len(cards),
+                'value': sum(c['price'] for c in cards)
+            }})
+        
+        if tool == 'send_chat':
+            # Trigger chat endpoint
+            return jsonify({'result': 'Message sent'})
+    
+    return jsonify({'error': 'Unknown method'}), 400
+
+# ============================================
 # RUN
 # ============================================
 
