@@ -154,8 +154,8 @@ def dev_messages():
         with open(messages_file, 'w') as f:
             json.dump(messages[-100:], f, indent=2)  # Keep last 100
 
-        # Check if Jacques is mentioned - trigger AI response
-        if 'jacques' in new_msg['text'].lower() and new_msg['author'] != 'jacques':
+        # Check if Jacques should respond (always, unless he sent it)
+        if new_msg['author'] != 'jacques':
             try:
                 import anthropic
                 client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
@@ -189,8 +189,8 @@ def dev_messages():
             except Exception as e:
                 print(f"Failed to get Jacques AI response: {e}")
 
-        # Check if Mendel is mentioned - trigger AI response
-        if 'mendel' in new_msg['text'].lower() and new_msg['author'] != 'mendel':
+        # Check if Mendel should respond (always, unless he sent it)
+        if new_msg['author'] != 'mendel':
             try:
                 import anthropic
                 client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
