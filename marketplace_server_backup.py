@@ -1,3 +1,19 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# NEXUS: Universal Collectibles Recognition and Management System
+# ═══════════════════════════════════════════════════════════════════════════════
+# 
+# Copyright (c) 2025 Kevin Caracozza. All Rights Reserved.
+# 
+# PATENT PENDING - U.S. Provisional Application Filed November 27, 2025
+# Application: 35 U.S.C. § 111(b)
+# Classification: G06V 10/00, G06V 30/19, G06N 3/08, G06Q 30/02, H04N 23/00
+# 
+# This software is proprietary and confidential. Unauthorized copying,
+# modification, distribution, or use is strictly prohibited.
+# 
+# See LICENSE file for full terms.
+# ═══════════════════════════════════════════════════════════════════════════════
+
 """
 NEXUS Marketplace API Server
 Serves card data and analytics for the marketplace frontend
