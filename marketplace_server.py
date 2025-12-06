@@ -245,10 +245,13 @@ def get_listings():
     if rarity:
         filtered = [l for l in filtered if rarity in l.get('rarity', '').lower()]
     
-    # Add seller info to each listing
+    # Add seller info to each listing and enrich with Scryfall data
     for listing in filtered:
         seller = sellers.get(listing.get('seller_id', ''), {})
         listing['seller_name'] = seller.get('shop_name', 'Unknown Seller')
+        # Enrich with image if missing
+        if not listing.get('image_url'):
+            enrich_listing(listing)
     
     total = len(filtered)
     paginated = filtered[offset:offset + limit]
@@ -540,6 +543,10 @@ def sync_listings():
         # Set seller ID
         incoming['seller_id'] = seller_id
         incoming['synced_at'] = datetime.now().isoformat()
+        
+        # Enrich with Scryfall image if not provided
+        if not incoming.get('image_url'):
+            enrich_listing(incoming)
         
         # Check if listing already exists (by ID or by card+condition+seller)
         existing = next((l for l in listings if l.get('id') == incoming.get('id') or 
